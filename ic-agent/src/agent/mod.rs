@@ -21,9 +21,9 @@ pub use nonce::{NonceFactory, NonceGenerator};
 use rangemap::{RangeInclusiveMap, RangeInclusiveSet, StepFns};
 use time::OffsetDateTime;
 
-use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::JsFuture;
-use js_sys::{Function, Promise};
+// use wasm_bindgen::prelude::*;
+// use wasm_bindgen_futures::JsFuture;
+// use js_sys::{Function, Promise};
 
 #[cfg(test)]
 mod agent_test;
@@ -65,25 +65,25 @@ const IC_ROOT_KEY: &[u8; 133] = b"\x30\x81\x82\x30\x1d\x06\x0d\x2b\x06\x01\x04\x
 #[cfg(not(target_family = "wasm"))]
 type AgentFuture<'a, V> = Pin<Box<dyn Future<Output = Result<V, AgentError>> + Send + 'a>>;
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = globalThis)]
-    fn setTimeout(closure: &Function, millis: i32) -> i32;
-}
+// #[wasm_bindgen]
+// extern "C" {
+//     #[wasm_bindgen(js_namespace = globalThis)]
+//     fn setTimeout(closure: &Function, millis: i32) -> i32;
+// }
 
-async fn sleep(duration: std::time::Duration) {
-  let millis = duration.as_millis() as i32;
-  let promise = Promise::new(&mut |resolve, _| {
-      let closure = Closure::wrap(Box::new(move || {
-          resolve.call0(&JsValue::NULL).unwrap(); // Call and ignore the return value
-          () // Explicitly return unit type `()`
-      }) as Box<dyn FnMut()>);
-      setTimeout(&closure.as_ref().unchecked_ref(), millis);
-      closure.forget(); // Prevents the closure from being deallocated
-  });
+// async fn sleep(duration: std::time::Duration) {
+//   let millis = duration.as_millis() as i32;
+//   let promise = Promise::new(&mut |resolve, _| {
+//       let closure = Closure::wrap(Box::new(move || {
+//           resolve.call0(&JsValue::NULL).unwrap(); // Call and ignore the return value
+//           () // Explicitly return unit type `()`
+//       }) as Box<dyn FnMut()>);
+//       setTimeout(&closure.as_ref().unchecked_ref(), millis);
+//       closure.forget(); // Prevents the closure from being deallocated
+//   });
 
-  JsFuture::from(promise).await.unwrap();
-}
+//   JsFuture::from(promise).await.unwrap();
+// }
 
 
 #[cfg(target_family = "wasm")]
@@ -754,10 +754,6 @@ impl Agent {
                   .expect("unable to setTimeout");
               }
           
-              Some(duration) => {
-                  sleep(duration).await;
-              }
-          
               None => return Err(AgentError::TimeoutWaitingForResponse()),
           }
         }
@@ -811,10 +807,6 @@ impl Agent {
                   }))
                   .await
                   .expect("unable to setTimeout");
-              }
-          
-              Some(duration) => {
-                  sleep(duration).await;
               }
           
               None => return Err(AgentError::TimeoutWaitingForResponse()),
