@@ -729,13 +729,8 @@ impl Agent {
                   .expect("unable to setTimeout");
               }
           
-              // Catch-all case for Some(duration) when none of the above cfg conditions match
               Some(duration) => {
-                  // Handle this case appropriately, e.g., log a warning or error
-                  log::warn!("Unhandled duration case: {:?}", duration);
-                  // You might need to sleep for the duration or return an error, depending on your application's needs
-                  // For example, using async-std's sleep (if using async-std):
-                  // async_std::task::sleep(duration).await;
+                  async_std::task::sleep(duration).await;
               }
           
               None => return Err(AgentError::TimeoutWaitingForResponse()),
